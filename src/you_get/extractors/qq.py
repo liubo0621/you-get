@@ -43,20 +43,24 @@ def qq_download_by_vid(vid, title, output_dir='.', merge=True, info_only=False):
                     filename = vid + '.p' + str(part_format_id % 10000) + '.' + str(part) + '.mp4'
                     key_api = "http://vv.video.qq.com/getkey?otype=json&platform=11&format=%s&vid=%s&filename=%s" % (part_format_id, parts_vid, filename)
                     #print(filename)
-                    #print(key_api)
+                    # print(key_api)
                     part_info = get_html(key_api)
                     key_json = json.loads(match1(part_info, r'QZOutputJson=(.*)')[:-1])
                     #print(key_json)
                     vkey = key_json['key']
                     url = '%s/%s?vkey=%s' % (parts_prefix, filename, vkey)
                     part_urls.append(url)
-                    _, ext, size = url_info(url, faker=True)
+                    # _, ext, size = url_info(url, faker=True)
+                    _, ext, size = '', '', ''
                     total_size += size
-            except:
+            except Exception as e:
                 pass
-            print_info(site_info, parts_ti, ext, total_size)
-            if not info_only:
-                download_urls(part_urls, parts_ti, ext, total_size, output_dir=output_dir, merge=merge)
+
+            return part_urls
+            # print_info(site_info, parts_ti, ext, total_size)
+            # print(part_urls)
+            # if not info_only:
+            #     download_urls(part_urls, parts_ti, ext, total_size, output_dir=output_dir, merge=merge)
         else:
             fvkey = video_json['vl']['vi'][0]['fvkey']
             mp4 = video_json['vl']['vi'][0]['cl'].get('ci', None)
@@ -67,11 +71,13 @@ def qq_download_by_vid(vid, title, output_dir='.', merge=True, info_only=False):
             else:
                 mp4 = video_json['vl']['vi'][0]['fn']
             url = '%s/%s?vkey=%s' % ( parts_prefix, mp4, fvkey )
-            _, ext, size = url_info(url, faker=True)
+            # _, ext, size = url_info(url, faker=True)
 
-            print_info(site_info, title, ext, size)
-            if not info_only:
-                download_urls([url], title, ext, size, output_dir=output_dir, merge=merge)
+            return [url]
+            # print_info(site_info, title, ext, size)
+            # print(url)
+            # if not info_only:
+            #     download_urls([url], title, ext, size, output_dir=output_dir, merge=merge)
 
 def kg_qq_download_by_shareid(shareid, output_dir='.', info_only=False, caption=False):
     BASE_URL = 'http://cgi.kg.qq.com/fcgi-bin/kg_ugc_getdetail'
@@ -87,7 +93,7 @@ def kg_qq_download_by_shareid(shareid, output_dir='.', info_only=False, caption=
     real_url = real_url.replace('\/', '/')
 
     ksong_mid = json_data['data']['ksong_mid']
-    lyric_url = 'http://cgi.kg.qq.com/fcgi-bin/fcg_lyric?jsonpCallback=jsopgetlrcdata&outCharset=utf-8&ksongmid=' + ksong_mid 
+    lyric_url = 'http://cgi.kg.qq.com/fcgi-bin/fcg_lyric?jsonpCallback=jsopgetlrcdata&outCharset=utf-8&ksongmid=' + ksong_mid
     lyric_data = get_content(lyric_url)
     lyric_string = lyric_data[len('jsopgetlrcdata('):-1]
     lyric_json = json.loads(lyric_string)
@@ -127,8 +133,8 @@ def qq_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
         content = get_html(url)
         vids = matchall(content, [r'\bvid=(\w+)'])
         for vid in vids:
-            qq_download_by_vid(vid, vid, output_dir, merge, info_only)
-        return
+            return qq_download_by_vid(vid, vid, output_dir, merge, info_only)
+
 
     #do redirect
     if 'v.qq.com/page' in url:
@@ -155,7 +161,7 @@ def qq_download(url, output_dir='.', merge=True, info_only=False, **kwargs):
         title = match1(content, r'"title":"([^"]+)"') if not title else title
         title = vid if not title else title #general fallback
 
-    qq_download_by_vid(vid, title, output_dir, merge, info_only)
+    return qq_download_by_vid(vid, title, output_dir, merge, info_only)
 
 site_info = "QQ.com"
 download = qq_download

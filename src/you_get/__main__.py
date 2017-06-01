@@ -84,12 +84,12 @@ def main_dev(**kwargs):
                 from .console import console_main
                 console_main(*args, **conf)
 
-def main(**kwargs):
+def main(url):
     """Main entry point.
     you-get (legacy)
     """
     from .common import main
-    main(**kwargs)
+    return main(video_url = url)
 
 if __name__ == '__main__':
     main()

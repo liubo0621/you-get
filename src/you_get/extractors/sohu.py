@@ -74,6 +74,8 @@ def sohu_download(url, output_dir = '.', merge = True, info_only = False, extrac
     if not info_only:
         download_urls(urls, title, 'mp4', size, output_dir, refer = url, merge = merge)
 
+    return urls
+
 site_info = "Sohu.com"
 download = sohu_download
 download_playlist = playlist_not_supported('sohu')

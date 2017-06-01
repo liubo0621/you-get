@@ -257,7 +257,7 @@ def undeflate(data):
 
 # DEPRECATED in favor of get_content()
 def get_response(url, faker = False):
-    logging.debug('get_response: %s' % url)
+    # logging.debug('get_response: %s' % url)
 
     # install cookies
     if cookies:
@@ -761,8 +761,8 @@ def download_urls(urls, title, ext, total_size, output_dir='.', refer=None, merg
         json_output_.download_urls(urls=urls, title=title, ext=ext, total_size=total_size, refer=refer)
         return
     if dry_run:
-        print('Real URLs:\n%s' % '\n'.join(urls))
-        return
+        # print('Real URLs:\n%s' % '\n'.join(urls))
+        return urls
 
     if player:
         launch_player(player, urls)
@@ -1283,7 +1283,7 @@ def script_main(script_name, download, download_playlist, **kwargs):
         elif o in ('-d', '--debug'):
             traceback = True
             # Set level of root logger to DEBUG
-            logging.getLogger().setLevel(logging.DEBUG)
+            logging.getLogger().setLevel(logging.ERROR)
         elif o in ('-F', '--format', '--stream', '--itag'):
             stream_id = a
         elif o in ('-O', '--output-filename'):
@@ -1431,11 +1431,17 @@ def url_to_module(url):
 
 def any_download(url, **kwargs):
     m, url = url_to_module(url)
-    m.download(url, **kwargs)
+    urls =  m.download(url, **kwargs)
+    return urls
 
 def any_download_playlist(url, **kwargs):
     m, url = url_to_module(url)
     m.download_playlist(url, **kwargs)
 
 def main(**kwargs):
-    script_main('you-get', any_download, any_download_playlist, **kwargs)
+    url = kwargs['video_url']
+    global dry_run
+    dry_run = True
+    urls = any_download(url, **kwargs)
+    return urls
+    # script_main('you-get', any_download, any_download_playlist, **kwargs)
