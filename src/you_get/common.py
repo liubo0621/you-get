@@ -267,7 +267,7 @@ def get_response(url, faker = False):
     if faker:
         response = request.urlopen(request.Request(url, headers = fake_headers), None)
     else:
-        response = request.urlopen(url)
+        response = request.urlopen(url, timeout = 30)
 
     data = response.read()
     if response.info().get('Content-Encoding') == 'gzip':
